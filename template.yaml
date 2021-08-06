@@ -45,7 +45,10 @@ Resources:
               SourceVolume: ghostVolume
           Environment:
             - Name: url
-              Value: !Join [ '', [ 'http://', !GetAtt Loadbalancer.DNSName ] ]
+              Value: !Join
+                - ''
+                - - http://
+                  - !GetAtt Loadbalancer.DNSName
             - Name: database__client
               Value: !If
                 - GhostAuroraDB
@@ -144,13 +147,13 @@ Resources:
             Type: A
           - TTL: 60
             Type: SRV
-      Name: 'ghost-cms'
+      Name: ghost-cms
       NamespaceId: !Ref CloudMapNamespace
   CloudMapNamespace:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
-    Properties: 
+    Properties:
       Name: !Sub ${AWS::StackName}-${AWS::Region}-jamstackery.io
-      Vpc: !Ref DefaultVPCId  
+      Vpc: !Ref DefaultVPCId
   Service:
     Type: AWS::ECS::Service
     Properties:
@@ -165,7 +168,7 @@ Resources:
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
-          Subnets: 
+          Subnets:
             - !Select
               - 0
               - !Ref DefaultVPCSubnets
@@ -180,10 +183,10 @@ Resources:
           ContainerName: ghost
   Loadbalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties: 
+    Properties:
       IpAddressType: ipv4
       Name: ghostAPILB
-      SecurityGroups: 
+      SecurityGroups:
         - !GetAtt ghostLBSecurityGroup.GroupId
       Subnets: !Ref DefaultVPCSubnets
       Type: application
@@ -403,7 +406,7 @@ Resources:
           Value: !Sub
             - Stack ${StackTagName} Environment ${EnvironmentTagName} API ${ResourceName} VPC Security Group
             - ResourceName: ghostLB
-      VpcId: !Ref DefaultVPCId  
+      VpcId: !Ref DefaultVPCId
 Parameters:
   StackTagName:
     Type: String
